@@ -1,7 +1,5 @@
 - hosts: masters
   sudo: yes
-  vars:
-    ansible_ssh_user: fedora
   vars_files:
     - vars.yaml
   tasks:
@@ -23,8 +21,13 @@
         - kube-apiserver
         - kube-controller-manager
         - kube-scheduler
+    - command: 'curl -s -L http://127.0.0.1:4001/v2/keys/coreos.com/network/config -XPUT -d value="{\"Network\": \"4.0.0.0/8\", \"SubnetLen\": 24, \"Backend\": {\"Type\": \"vxlan\"}}"'
+    - service: name=flanneld state=started enabled=yes
+      notify: restart flannel
 
   handlers:
+    - name: restart kube-minion services
+      debug: msg="Not on kube-minion"
     - name: restart kube-master services
       service: name={{ item }} state=restarted enabled=yes
       with_items:
@@ -33,3 +36,7 @@
         - kube-scheduler
     - name: restart etcd service
       service: name=etcd state=restarted enabled=yes
+
+    - include: h_base.yaml
+    - name: restart kube-minion services 2
+      debug: msg="Not on kube-minion"

@@ -1,0 +1,17 @@
+- name: restart flannel
+  service: name=flanneld state=restarted enabled=yes
+  notify:
+    - stop docker
+    - delete docker0
+    - start docker
+- name: stop docker
+  service: name=docker state=stopped
+- name: delete docker0
+  command: ip link delete docker0
+  ignore_errors: yes
+- name: start docker
+  service: name=docker state=started
+  notify: restart kube-minion services 2
+- name: restart docker
+  service: name=docker state=restarted
+  notify: restart kube-minion services 2

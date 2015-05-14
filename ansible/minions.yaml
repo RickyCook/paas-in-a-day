@@ -1,7 +1,5 @@
 - hosts: minions
   sudo: yes
-  vars:
-    ansible_ssh_user: fedora
   vars_files:
     - vars.yaml
   tasks:
@@ -25,6 +23,8 @@
         - kube-proxy
         - kubelet
         - docker
+    - service: name=flanneld state=started enabled=yes
+      notify: restart flannel
 
   handlers:
     - name: restart kube-minion services
@@ -32,10 +32,19 @@
       with_items:
         - kube-proxy
         - kubelet
-        - docker
+    - name: restart kube-master services
+      debug: msg="Not on kube-master"
 
     - name: update node
       command: kubectl delete -s http://kube-master:8080 "nodes/{{ minion_name }}"
       notify: update node create
     - name: update node create
       command: kubectl create -s http://kube-master:8080 -f /tmp/node.yaml
+
+    - include: h_base.yaml
+
+    - name: restart kube-minion services 2
+      service: name={{ item }} state=restarted enabled=yes
+      with_items:
+        - kube-proxy
+        - kubelet

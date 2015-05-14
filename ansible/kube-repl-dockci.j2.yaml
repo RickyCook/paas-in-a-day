@@ -1,0 +1,23 @@
+apiVersion: v1beta3
+kind: ReplicationController
+metadata:
+  name: dockci-controller
+spec:
+  replicas: 1
+  selector:
+    name: dockci
+  template:
+    metadata:
+      labels:
+        name: dockci
+    spec:
+      containers:
+        - name: dockci
+          image: thatpanda/dockci
+          volumeMounts:
+            - name: data
+              mountPath: /code/data
+              readOnly: false
+      volumes:
+        - name: data
+          emptyDir: {}

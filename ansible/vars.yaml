@@ -1,1 +1,2 @@
-master_ip: 172.31.1.218
+ansible_ssh_user: root
+master_ip: 10.130.128.60

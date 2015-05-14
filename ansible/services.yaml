@@ -1,15 +1,31 @@
 - hosts: masters
   sudo: yes
   gather_facts: no
-  vars:
-    ansible_ssh_user: fedora
+  vars_files:
+    - vars.yaml
   tasks:
     - template: dest=/tmp/kube-repl-registry.yaml src=kube-repl-registry.j2.yaml
       notify: create registry repl
     - template: dest=/tmp/kube-service-registry.yaml src=kube-service-registry.j2.yaml
       notify: create registry service
+    - template: dest=/tmp/kube-repl-dockci.yaml src=kube-repl-dockci.j2.yaml
+      notify: create dockci repl
+    - template: dest=/tmp/kube-service-dockci.yaml src=kube-service-dockci.j2.yaml
+      notify: create dockci service
+    # - template: dest=/tmp/kube-repl-debug-sleeper.yaml src=kube-repl-debug-sleeper.j2.yaml
+    #   notify: create debug-sleeper repl
+    # - template: dest=/tmp/kube-service-debug-sleeper.yaml src=kube-service-debug-sleeper.j2.yaml
+    #   notify: create debug-sleeper service
   handlers:
     - name: create registry repl
       command: kubectl create -f /tmp/kube-repl-registry.yaml
     - name: create registry service
       command: kubectl create -f /tmp/kube-service-registry.yaml
+    - name: create dockci repl
+      command: kubectl create -f /tmp/kube-repl-dockci.yaml
+    - name: create dockci service
+      command: kubectl create -f /tmp/kube-service-dockci.yaml
+    - name: create debug-sleeper repl
+      command: kubectl create -f /tmp/kube-repl-debug-sleeper.yaml
+    - name: create debug-sleeper service
+      command: kubectl create -f /tmp/kube-service-debug-sleeper.yaml

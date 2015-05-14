@@ -1,0 +1,4 @@
+- include: selinux.yaml
+- include: master.yaml
+- include: minions.yaml
+- include: services.yaml

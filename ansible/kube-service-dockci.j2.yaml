@@ -1,0 +1,11 @@
+apiVersion: v1beta3
+kind: Service
+metadata:
+  name: dockci-service
+spec:
+  ports:
+    - port: 5000
+      targetPort: 80
+      protocol: TCP
+  selector:
+    name: dockci

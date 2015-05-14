@@ -1,0 +1,11 @@
+{
+    "apiVersion": "v1beta3",
+    "kind": "Node",
+    "metadata": {
+        "name": "{{ minion_name }}",
+        "labels":{ "name": "{{ minion_name }}-label"}
+    },
+    "spec": {
+        "externalID": "{{ minion_name }}"
+    }
+}

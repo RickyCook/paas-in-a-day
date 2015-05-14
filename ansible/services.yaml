@@ -1,0 +1,15 @@
+- hosts: masters
+  sudo: yes
+  gather_facts: no
+  vars:
+    ansible_ssh_user: fedora
+  tasks:
+    - template: dest=/tmp/kube-repl-registry.yaml src=kube-repl-registry.j2.yaml
+      notify: create registry repl
+    - template: dest=/tmp/kube-service-registry.yaml src=kube-service-registry.j2.yaml
+      notify: create registry service
+  handlers:
+    - name: create registry repl
+      command: kubectl create -f /tmp/kube-repl-registry.yaml
+    - name: create registry service
+      command: kubectl create -f /tmp/kube-service-registry.yaml

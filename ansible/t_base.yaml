@@ -1,10 +1,11 @@
-- command: yum -y install --enablerepo=updates-testing kubernetes
-- yum: name={{ item }}
-  with_items:
-    - etcd
-    - iptables
-- set_fact:
-    master_ip: "{{ hostvars[groups.masters.0].ansible_default_ipv4.address }}"
+# - yum: name={{ item }} disablerepo=updates-testing
+#   with_items:
+#     - etcd
+#     - iptables
+#     - kubernetes
+# - set_fact:
+#     master_ip: "{{ hostvars[groups.masters.0].ansible_default_ipv4.address }}"
+- command: dnf install -y --disablerepo updates-testing etcd iptables kubernetes
 - lineinfile: dest=/etc/hosts regexp='.*kube-master'
               line="{{ master_ip }} kube-master"
 - lineinfile: dest=/etc/kubernetes/config regexp='KUBE_MASTER *='

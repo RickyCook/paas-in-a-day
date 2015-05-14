@@ -1,0 +1,22 @@
+apiVersion: v1beta3
+kind: ReplicationController
+metadata:
+  name: registry-controller
+spec:
+  replicas: 1
+  selector:
+    name: registry
+  template:
+    metadata:
+      labels:
+        name: registry
+    spec:
+      containers:
+        - name: registry
+          image: registry:2
+          volumeMounts:
+            - name: registry
+              mountPath: /registry
+      volumes:
+        - name: registry
+          emptyDir: {}

@@ -1,0 +1,11 @@
+apiVersion: v1beta3
+kind: Service
+metadata:
+  name: registry-service
+spec:
+  ports:
+    - port: 5000
+      targetPort: 5000
+      protocol: TCP
+  selector:
+    name: registry

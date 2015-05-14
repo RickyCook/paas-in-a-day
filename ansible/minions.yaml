@@ -1,0 +1,41 @@
+- hosts: minions
+  sudo: yes
+  vars:
+    ansible_ssh_user: fedora
+  vars_files:
+    - vars.yaml
+  tasks:
+    - include: 't_base.yaml'
+
+    - lineinfile: dest=/etc/kubernetes/kubelet regexp='KUBELET_ADDRESS *='
+                  line='KUBELET_ADDRESS="--address=0.0.0.0"'
+      notify: restart kube-minion services
+    - lineinfile: dest=/etc/kubernetes/kubelet regexp='KUBELET_API_SERVER *='
+                  line='KUBELET_API_SERVER="--api_servers=http://kube-master:8080"'
+      notify: restart kube-minion services
+    - lineinfile: dest=/etc/kubernetes/kubelet regexp='KUBELET_HOSTNAME *='
+                  line='KUBELET_HOSTNAME="--hostname_override={{ minion_name }}"'
+      notify: restart kube-minion services
+
+    - template: dest=/tmp/node.yaml src=node.j2.yaml
+      notify: update node
+
+    - service: name={{ item }} state=started enabled=yes
+      with_items:
+        - kube-proxy
+        - kubelet
+        - docker
+
+  handlers:
+    - name: restart kube-minion services
+      service: name={{ item }} state=restarted enabled=yes
+      with_items:
+        - kube-proxy
+        - kubelet
+        - docker
+
+    - name: update node
+      command: kubectl delete -s http://kube-master:8080 "nodes/{{ minion_name }}"
+      notify: update node create
+    - name: update node create
+      command: kubectl create -s http://kube-master:8080 -f /tmp/node.yaml

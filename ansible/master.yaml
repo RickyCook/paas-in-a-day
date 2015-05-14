@@ -1,13 +1,16 @@
 - hosts: masters
+  sudo: yes
   vars:
-    ansible_ssh_user: root
+    ansible_ssh_user: fedora
+  vars_files:
+    - vars.yaml
   tasks:
     - include: 't_base.yaml'
 
     - lineinfile: dest=/etc/kubernetes/apiserver regexp='KUBE_API_ADDRESS *='
                   line='KUBE_API_ADDRESS="--address=0.0.0.0"'
       notify: restart kube-master services
-    - lineinfile: dest=/etc/kubernetes/control-manage regexp='KUBELET_ADDRESSES *='
+    - lineinfile: dest=/etc/kubernetes/controller-manager regexp='KUBELET_ADDRESSES *='
                   line='KUBELET_ADDRESSES=""'
       notify: restart kube-master services
     - lineinfile: dest=/etc/etcd/etcd.conf regexp='ETCD_LISTEN_CLIENT_URLS *='

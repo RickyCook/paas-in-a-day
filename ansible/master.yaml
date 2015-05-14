@@ -1,0 +1,32 @@
+- hosts: masters
+  vars:
+    ansible_ssh_user: root
+  tasks:
+    - include: 't_base.yaml'
+
+    - lineinfile: dest=/etc/kubernetes/apiserver regexp='KUBE_API_ADDRESS *='
+                  line='KUBE_API_ADDRESS="--address=0.0.0.0"'
+      notify: restart kube-master services
+    - lineinfile: dest=/etc/kubernetes/control-manage regexp='KUBELET_ADDRESSES *='
+                  line='KUBELET_ADDRESSES=""'
+      notify: restart kube-master services
+    - lineinfile: dest=/etc/etcd/etcd.conf regexp='ETCD_LISTEN_CLIENT_URLS *='
+                  line='ETCD_LISTEN_CLIENT_URLS="http://0.0.0.0:4001"'
+      notify: restart etcd service
+
+    - service: name={{ item }} state=started enabled=yes
+      with_items:
+        - etcd
+        - kube-apiserver
+        - kube-controller-manager
+        - kube-scheduler
+
+  handlers:
+    - name: restart kube-master services
+      service: name={{ item }} state=restarted enabled=yes
+      with_items:
+        - kube-apiserver
+        - kube-controller-manager
+        - kube-scheduler
+    - name: restart etcd service
+      service: name=etcd state=restarted enabled=yes

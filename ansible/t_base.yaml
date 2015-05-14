@@ -1,0 +1,15 @@
+- command: yum -y install --enablerepo=updates-testing kubernetes
+- yum: name={{ item }}
+  with_items:
+    - etcd
+    - iptables
+- set_fact:
+    master_ip: "{{ hostvars[groups.masters.0].ansible_default_ipv4.address }}"
+- lineinfile: dest=/etc/hosts regexp='.*kube-master'
+              line="{{ master_ip }} kube-master"
+- lineinfile: dest=/etc/kubernetes/config regexp='KUBE_MASTER *='
+              line='KUBE_MASTER="--master=http://kube-master:8080"'
+- service: name={{ item }} state=stopped enabled=no
+  with_items:
+    - firewalld
+    - iptables-services

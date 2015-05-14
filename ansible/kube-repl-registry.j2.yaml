@@ -1,15 +1,17 @@
 apiVersion: v1beta3
 kind: ReplicationController
 metadata:
-  name: registry-controller
+  name: registry-controller-{{ repl_suffix }}
 spec:
   replicas: 1
   selector:
     name: registry
+    suffix: {{ repl_suffix }}
   template:
     metadata:
       labels:
         name: registry
+        suffix: {{ repl_suffix }}
     spec:
       containers:
         - name: registry
@@ -17,6 +19,15 @@ spec:
           volumeMounts:
             - name: registry
               mountPath: /registry
+          livenessProbe:
+            httpGet:
+              path: /v2/
+              port: 5000
+            initialDelaySeconds: 5
+            timeoutSeconds: 2
       volumes:
         - name: registry
-          emptyDir: {}
+          nfs:
+            server: {{ master_ip }}
+            path: /export/registry
+            readOnly: false

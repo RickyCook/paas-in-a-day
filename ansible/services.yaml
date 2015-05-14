@@ -3,29 +3,40 @@
   gather_facts: no
   vars_files:
     - vars.yaml
+  vars:
+    repl_suffix: a
+    roll_repl_suffix: b
   tasks:
-    - template: dest=/tmp/kube-repl-registry.yaml src=kube-repl-registry.j2.yaml
-      notify: create registry repl
     - template: dest=/tmp/kube-service-registry.yaml src=kube-service-registry.j2.yaml
-      notify: create registry service
-    - template: dest=/tmp/kube-repl-dockci.yaml src=kube-repl-dockci.j2.yaml
-      # notify: create dockci repl
+      notify: update registry service
+      tags: service
+    - template: dest=/tmp/kube-repl-registry.yaml src=kube-repl-registry.j2.yaml
+      notify: rollingupdate registry repl
+      tags: repl
+
     - template: dest=/tmp/kube-service-dockci.yaml src=kube-service-dockci.j2.yaml
-      # notify: create dockci service
-    # - template: dest=/tmp/kube-repl-debug-sleeper.yaml src=kube-repl-debug-sleeper.j2.yaml
-    #   notify: create debug-sleeper repl
-    # - template: dest=/tmp/kube-service-debug-sleeper.yaml src=kube-service-debug-sleeper.j2.yaml
-    #   notify: create debug-sleeper service
+      notify: update dockci service
+      tags: service
+    - template: dest=/tmp/kube-repl-dockci.yaml src=kube-repl-dockci.j2.yaml
+      notify: rollingupdate dockci repl
+      tags: repl
   handlers:
     - name: create registry repl
       command: kubectl create -f /tmp/kube-repl-registry.yaml
-    - name: create registry service
-      command: kubectl create -f /tmp/kube-service-registry.yaml
     - name: create dockci repl
       command: kubectl create -f /tmp/kube-repl-dockci.yaml
+
     - name: create dockci service
       command: kubectl create -f /tmp/kube-service-dockci.yaml
-    - name: create debug-sleeper repl
-      command: kubectl create -f /tmp/kube-repl-debug-sleeper.yaml
-    - name: create debug-sleeper service
-      command: kubectl create -f /tmp/kube-service-debug-sleeper.yaml
+    - name: create registry service
+      command: kubectl create -f /tmp/kube-service-registry.yaml
+
+    - name: rollingupdate registry repl
+      command: kubectl rolling-update registry-controller-{{ roll_repl_suffix }} -f /tmp/kube-repl-registry.yaml --update-period="10s"
+    - name: rollingupdate dockci repl
+      command: kubectl rolling-update dockci-controller-{{ roll_repl_suffix }} -f /tmp/kube-repl-dockci.yaml --update-period="10s"
+
+    - name: update dockci service
+      command: kubectl update -f /tmp/kube-service-dockci.yaml
+    - name: update registry service
+      command: kubectl update -f /tmp/kube-service-registry.yaml

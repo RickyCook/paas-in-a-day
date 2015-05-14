@@ -1,7 +1,0 @@
-apiVersion: v1beta3
-kind: Service
-metadata:
-  name: debug-sleeper-service
-spec:
-  selector:
-    name: debug-sleeper

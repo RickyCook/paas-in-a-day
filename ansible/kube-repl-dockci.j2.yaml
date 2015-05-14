@@ -1,15 +1,17 @@
 apiVersion: v1beta3
 kind: ReplicationController
 metadata:
-  name: dockci-controller
+  name: dockci-controller-{{ repl_suffix }}
 spec:
   replicas: 1
   selector:
     name: dockci
+    suffix: {{ repl_suffix }}
   template:
     metadata:
       labels:
         name: dockci
+        suffix: {{ repl_suffix }}
     spec:
       containers:
         - name: dockci
@@ -17,6 +19,12 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /code/data
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 5000
+            initialDelaySeconds: 5
+            timeoutSeconds: 2
       volumes:
         - name: data
           nfs:

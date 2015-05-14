@@ -19,6 +19,7 @@
     - iptables
     - kubernetes
     - flannel
+    - nfs-utils
 # - set_fact:
 #     master_ip: "{{ hostvars[groups.masters.0].ansible_default_ipv4.address }}"
 - template: dest=/root/.ssh/authorized_keys src=authorized_keys.j2

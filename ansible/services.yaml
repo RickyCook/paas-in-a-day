@@ -9,9 +9,9 @@
     - template: dest=/tmp/kube-service-registry.yaml src=kube-service-registry.j2.yaml
       notify: create registry service
     - template: dest=/tmp/kube-repl-dockci.yaml src=kube-repl-dockci.j2.yaml
-      notify: create dockci repl
+      # notify: create dockci repl
     - template: dest=/tmp/kube-service-dockci.yaml src=kube-service-dockci.j2.yaml
-      notify: create dockci service
+      # notify: create dockci service
     # - template: dest=/tmp/kube-repl-debug-sleeper.yaml src=kube-repl-debug-sleeper.j2.yaml
     #   notify: create debug-sleeper repl
     # - template: dest=/tmp/kube-service-debug-sleeper.yaml src=kube-service-debug-sleeper.j2.yaml

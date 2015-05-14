@@ -5,6 +5,13 @@
   tasks:
     - include: 't_base.yaml'
 
+    - file: path="/export/{{ item }}" recurse=yes state=directory
+      with_items:
+        - dockci
+        - registry
+    - template: dest=/etc/exports src=exports.j2
+      notify: reload nfs
+
     - lineinfile: dest=/etc/kubernetes/apiserver regexp='KUBE_API_ADDRESS *='
                   line='KUBE_API_ADDRESS="--address=0.0.0.0"'
       notify: restart kube-master services
@@ -21,6 +28,8 @@
         - kube-apiserver
         - kube-controller-manager
         - kube-scheduler
+        - rpcbind
+        - nfs-server
     - command: 'curl -s -L http://127.0.0.1:4001/v2/keys/coreos.com/network/config -XPUT -d value="{\"Network\": \"4.0.0.0/8\", \"SubnetLen\": 24, \"Backend\": {\"Type\": \"vxlan\"}}"'
     - service: name=flanneld state=started enabled=yes
       notify: restart flannel
@@ -36,6 +45,8 @@
         - kube-scheduler
     - name: restart etcd service
       service: name=etcd state=restarted enabled=yes
+    - name: reload nfs
+      service: name=nfs-server state=reloaded
 
     - include: h_base.yaml
     - name: restart kube-minion services 2

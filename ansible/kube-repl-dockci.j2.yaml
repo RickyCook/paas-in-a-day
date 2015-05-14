@@ -17,7 +17,9 @@ spec:
           volumeMounts:
             - name: data
               mountPath: /code/data
-              readOnly: false
       volumes:
         - name: data
-          emptyDir: {}
+          nfs:
+            server: {{ master_ip }}
+            path: /export/dockci
+            readOnly: false

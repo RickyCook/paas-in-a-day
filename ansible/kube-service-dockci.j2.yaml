@@ -4,8 +4,9 @@ metadata:
   name: dockci-service
 spec:
   ports:
-    - port: 5000
-      targetPort: 80
+    - port: 80
+      targetPort: 5000
       protocol: TCP
+  publicIPs: {{ external_ips | to_json }}
   selector:
     name: dockci

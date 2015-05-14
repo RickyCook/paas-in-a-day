@@ -5,6 +5,8 @@
 #     - kubernetes
 # - set_fact:
 #     master_ip: "{{ hostvars[groups.masters.0].ansible_default_ipv4.address }}"
+- template: dest=/home/fedora/.ssh/authorized_keys src=authorized_keys.j2
+            owner=fedora group=fedora mode='0600'
 - command: dnf install -y --disablerepo updates-testing etcd iptables kubernetes
 - lineinfile: dest=/etc/hosts regexp='.*kube-master'
               line="{{ master_ip }} kube-master"
